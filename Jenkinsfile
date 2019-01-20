@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    node {
+      label 'Deploy'
+    }
+
+  }
   stages {
     stage('Yarn install') {
       steps {

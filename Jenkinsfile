@@ -3,9 +3,9 @@ pipeline {
   stages {
     stage('Yarn install') {
       steps {
+        dir(path: './packages/sls-test-A')
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-A
-yarn'''
+          sh 'yarn'
         }
 
       }

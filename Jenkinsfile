@@ -3,9 +3,9 @@ pipeline {
   stages {
     stage('Yarn install') {
       steps {
-        dir(path: './packages/sls-test-A')
         nodejs('Node 8') {
-          sh 'yarn'
+          sh '''cd ./packages/sls-test-A
+yarn'''
         }
 
       }
@@ -13,7 +13,28 @@ pipeline {
     stage('Test') {
       steps {
         nodejs('Node 8') {
-          sh 'yarn jest'
+          sh '''cd ./packages/sls-test-A
+yarn jest'''
+        }
+
+      }
+    }
+    stage('Deploy') {
+      steps {
+        input 'Deploy?'
+        nodejs('Node 8') {
+          sh '''cd ./packages/sls-test-A
+sls deploy'''
+        }
+
+      }
+    }
+    stage('Remove') {
+      steps {
+        input 'Remove sls'
+        nodejs('Node 8') {
+          sh '''cd ./packages/sls-test-A
+sls remove'''
         }
 
       }

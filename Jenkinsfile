@@ -12,7 +12,10 @@ yarn'''
     }
     stage('Test') {
       steps {
-        sh 'yarn jest'
+        nodejs('Node 8') {
+          sh 'yarn jest'
+        }
+
       }
     }
   }

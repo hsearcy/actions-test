@@ -16,7 +16,6 @@ yarn'''
           sh '''cd ./packages/sls-test-B
 yarn jest'''
         }
-
       }
     }
     stage('Deploy') {

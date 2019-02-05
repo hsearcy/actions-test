@@ -10,7 +10,7 @@ pipeline {
 
           def testIssue = [fields: [ components: ["Partnership Service"]]]
 
-          response = jiraEditIssue(idOrKey: 'APP-2378', issue: testIssue, site: 'Gather')
+          response = jiraGetIssueTransitions(idOrKey: 'APP-2378', site: 'Gather')
 
           echo response.data.toString()
         }

@@ -3,9 +3,8 @@ pipeline {
   stages {
     stage('JIRA Search') {
       steps {
-        jiraJqlSearch(jql: 'project = APP AND component = "Partnership Service"', auditLog: true, failOnError: true, site: 'Gather')
         script {
-          def issues =  jiraJqlSearch(jql: 'project = APP AND component = "Lead Form"', auditLog: true, failOnError: true, site: 'Gather')
+          def issues =  jiraJqlSearch(jql: 'project = APP AND status = "Merge Request"', auditLog: true, failOnError: true, site: 'Gather')
           echo issues.data.toString()
         }
 

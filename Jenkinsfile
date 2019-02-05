@@ -8,7 +8,7 @@ pipeline {
           echo issues.data.toString()
           echo issues.data.issues[0].key.toString()
 
-          def testIssue = [fields: [ components: [[name:Venue App]]]]
+          def testIssue = [fields: [ components: [[name: 'Venue App']]]]
 
           response = jiraEditIssue(idOrKey: 'APP-2378', issue: testIssue, site: 'Gather')
 

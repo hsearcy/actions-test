@@ -6,7 +6,7 @@ pipeline {
         script {
           def issues =  jiraJqlSearch(jql: 'project = APP AND status = "Merge Request"', auditLog: true, failOnError: true, site: 'Gather')
           echo issues.data.toString()
-          echo issues.data[0].toString()
+          echo issues.data
         }
 
       }

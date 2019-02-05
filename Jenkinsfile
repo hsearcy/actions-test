@@ -3,7 +3,8 @@ pipeline {
   stages {
     stage('error') {
       steps {
-        jiraJqlSearch(jql: 'project = APP AND component = "Partnership Service"', auditLog: true, failOnError: true, site: 'Gather')
+        def issues = jiraJqlSearch(jql: 'project = APP AND component = "Partnership Service"', auditLog: true, failOnError: true, site: 'Gather')
+        echo issues.data.toString()
       }
     }
   }

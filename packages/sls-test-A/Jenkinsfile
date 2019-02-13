@@ -4,6 +4,7 @@ pipeline {
     stage('Echo Changes') {
       steps {
         script {
+          def hasChanges = false;
           def changeLogSets = currentBuild.changeSets
           for (int i = 0; i < changeLogSets.size(); i++) {
               def entries = changeLogSets[i].items
@@ -15,6 +16,8 @@ pipeline {
                       def file = files[k]
                       echo "  ${file.editType.name} ${file.path}"
                   }
+                  echo "Has CHANGES: ???? TODO: check syntax to see if changes in path, continue build option"
+                  
               }
             }
           }

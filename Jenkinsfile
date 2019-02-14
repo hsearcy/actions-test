@@ -14,7 +14,7 @@ pipeline {
             if (firstIssue) {
               def transitions = jiraGetIssueTransitions idOrKey: issue.key, site: 'Gather'
               echo transitions.data.toString()
-              deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }
+              deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }.id
               echo deployedStatusID.toString()
             }
             // def issueUpdate = [ transition: [ name: 'Deployed' ]]

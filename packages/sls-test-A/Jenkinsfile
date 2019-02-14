@@ -8,6 +8,7 @@ pipeline {
       steps {
         script {
           echo "Package path is: ${env.PACKAGE_PATH}"
+          echo "${env.WORKSPACE}"
           def hasChanges = false;
           def changeLogSets = currentBuild.changeSets
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -41,7 +42,7 @@ yarn'''
     stage('Test') {
       steps {
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-A
+          sh '''cd $PACKAGE_PATH
 yarn jest'''
         }
 
@@ -51,7 +52,7 @@ yarn jest'''
       steps {
         input 'Deploy?'
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-A
+          sh '''cd $PACKAGE_PATH
 sls deploy'''
         }
 
@@ -61,7 +62,7 @@ sls deploy'''
       steps {
         input 'Remove sls'
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-A
+          sh '''cd $PACKAGE_PATH
 sls remove'''
         }
 

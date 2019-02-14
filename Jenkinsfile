@@ -11,14 +11,17 @@ pipeline {
             echo issue.key.toString()
             echo issue.fields.status.toString()
             echo issue.toString()
+            issue.fields.status.name = "Deployed"
+            def response = jiraEditIssue(idOrKey: issue.key, issue: issue, site: 'Gather')
+            echo response.data.toString()
           }
 
 
           def testIssue = [fields: [ components: [[name: 'Venue App']]]]
 
-          response = jiraEditIssue(idOrKey: 'APP-2378', issue: testIssue, site: 'Gather')
+          def oldresponse = jiraEditIssue(idOrKey: 'APP-2378', issue: testIssue, site: 'Gather')
 
-          echo response.data.toString()
+          echo oldresponse.data.toString()
         }
 
       }

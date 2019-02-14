@@ -29,6 +29,7 @@ pipeline {
             echo "Changes detected in ${env.PACKAGE_PATH}"
           } else {
             continuePipeline = false
+            echo "No changes detected in ${env.PACKAGE_PATH}. Continue = ${continuePipeline}"
           }
         }
       }

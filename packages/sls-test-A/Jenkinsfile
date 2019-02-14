@@ -8,7 +8,6 @@ pipeline {
       steps {
         script {
           echo "Package path is: ${env.PACKAGE_PATH}"
-          echo "${env.WORKSPACE}"
           def hasChanges = false;
           def changeLogSets = currentBuild.changeSets
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -23,7 +22,7 @@ pipeline {
                       if (file.path.contains(env.PACKAGE_PATH)) hasChanges = true;
                   }
                   echo "Has CHANGES: ${hasChanges}"
-
+                  if (hasChanges) currentBuild.result = "SUCCESS";
               }
             }
           }

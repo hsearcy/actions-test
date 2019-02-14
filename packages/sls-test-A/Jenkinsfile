@@ -37,10 +37,10 @@ pipeline {
           echo "All changes since last build:\n${allChanges}"
           echo "Changes relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
           if (relevantChanges.length() > 0) {
-            echo "Changes detected in ${env.PACKAGE_PATH}"
+            echo "Changes detected, continuing pipeline."
           } else {
             continuePipeline = false
-            echo "No changes detected in ${env.PACKAGE_PATH}"
+            echo "No changes detected, waiting for user input to continue."
           }
         }
       }
@@ -50,8 +50,10 @@ pipeline {
         expression { !continuePipeline }
       }
       steps {
-        input 'No changes detected, continue anyway?'
-        script { continuePipeline = true }
+        timeout(time: 1, unit: "MINUTES") {
+          input 'No changes detected, continue anyway?'
+          script { continuePipeline = true }
+        }
       }
     }
     stage('Yarn install') {

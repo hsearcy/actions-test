@@ -4,7 +4,7 @@ module.exports.hello = async (event, context) => {
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: 'This is serverless test B! Irrelevant',
+      message: 'This is serverless test B!',
       input: event,
     }),
   };

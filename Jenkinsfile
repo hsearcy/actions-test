@@ -7,7 +7,7 @@ pipeline {
           def issues =  jiraJqlSearch(jql: 'project = Jenkins AND status = Done AND labels = service1', auditLog: true, failOnError: true, site: 'Gather')
           //echo issues.data.toString()
           // echo issues.data.issues[0].key.toString()
-          for (issue in issues.data.issue) {
+          issues.data.issues.each { issue ->
             echo "in issues"
             echo issue.key.toString()
           }

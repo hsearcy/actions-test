@@ -23,13 +23,12 @@ pipeline {
                 echo "  ${file.editType.name} ${file.path}"
                 if (file.path.contains(env.PACKAGE_PATH)) hasChanges = true
               }
-              echo "Has CHANGES: ${hasChanges}"
-              if (hasChanges) {
-                currentBuild.result = "SUCCESS"
-              } else {
-                continuePipeline = false
-              }
             }
+          }
+          if (hasChanges) {
+            echo "Changes detected in ${env.PACKAGE_PATH}"
+          } else {
+            continuePipeline = false
           }
         }
       }

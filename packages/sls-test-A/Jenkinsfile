@@ -32,7 +32,7 @@ pipeline {
     stage('Yarn install') {
       steps {
         nodejs('Node 8') {
-          sh '''cd $env.PACKAGE_PATH
+          sh '''cd ${env.PACKAGE_PATH}
 yarn'''
         }
 

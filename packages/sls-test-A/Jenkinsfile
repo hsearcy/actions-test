@@ -1,9 +1,13 @@
 pipeline {
   agent any
+  environment {
+    PACKAGE_PATH="packages/sls-test-A"
+  }
   stages {
     stage('Echo Changes') {
       steps {
         script {
+          echo "Package path is: ${env.PACKAGE_PATH}"
           def hasChanges = false;
           def changeLogSets = currentBuild.changeSets
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -15,15 +19,16 @@ pipeline {
                   for (int k = 0; k < files.size(); k++) {
                       def file = files[k]
                       echo "  ${file.editType.name} ${file.path}"
+                      if (file.path.contains(env.PACKAGE_PATH)) hasChanges = true;
                   }
-                  echo "Has CHANGES: ???? TODO: check syntax to see if changes in path, continue build option"
-                  
+                  echo "Has CHANGES: ${hasChanges}"
+
               }
             }
           }
         }
       }
-    
+
     stage('Yarn install') {
       steps {
         nodejs('Node 8') {

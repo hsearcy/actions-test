@@ -62,7 +62,9 @@ pipeline {
       }
       steps {
         nodejs('Node 8') {
-          sh '''cd $PACKAGE_PATH
+          sh '''
+          gor -h
+          cd $PACKAGE_PATH
                 yarn'''
         }
 

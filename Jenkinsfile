@@ -9,6 +9,7 @@ pipeline {
           // echo issues.data.issues[0].key.toString()
           issues.data.issues.each { issue ->
             echo issue.key.toString()
+            echo issue.fields.status.toString()
             echo issue.toString()
           }
 

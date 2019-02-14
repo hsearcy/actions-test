@@ -26,6 +26,7 @@ pipeline {
               echo "Has CHANGES: ${hasChanges}"
               if (hasChanges) {
                 currentBuild.result = "SUCCESS"
+              } else {
                 continuePipeline = false
               }
             }
@@ -33,7 +34,7 @@ pipeline {
         }
       }
     }
-    stage('Continue') {
+    stage('Continue?') {
       when {
         expression { !continuePipeline }
       }

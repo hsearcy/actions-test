@@ -1,3 +1,5 @@
+def continuePipeline = true
+
 pipeline {
   agent any
   environment {
@@ -11,58 +13,81 @@ pipeline {
           def hasChanges = false;
           def changeLogSets = currentBuild.changeSets
           for (int i = 0; i < changeLogSets.size(); i++) {
-              def entries = changeLogSets[i].items
-              for (int j = 0; j < entries.length; j++) {
-                  def entry = entries[j]
-                  echo "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}"
-                  def files = new ArrayList(entry.affectedFiles)
-                  for (int k = 0; k < files.size(); k++) {
-                      def file = files[k]
-                      echo "  ${file.editType.name} ${file.path}"
-                      if (file.path.contains(env.PACKAGE_PATH)) hasChanges = true;
-                  }
-                  echo "Has CHANGES: ${hasChanges}"
-                  if (hasChanges) currentBuild.result = "SUCCESS";
+            def entries = changeLogSets[i].items
+            for (int j = 0; j < entries.length; j++) {
+              def entry = entries[j]
+              echo "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}"
+              def files = new ArrayList(entry.affectedFiles)
+              for (int k = 0; k < files.size(); k++) {
+                def file = files[k]
+                echo "  ${file.editType.name} ${file.path}"
+                if (file.path.contains(env.PACKAGE_PATH)) hasChanges = true
+              }
+              echo "Has CHANGES: ${hasChanges}"
+              if (hasChanges) {
+                currentBuild.result = "SUCCESS"
+                continuePipeline = false
               }
             }
           }
         }
       }
-
+    }
+    stage('Continue') {
+      when {
+        expression { !continuePipeline }
+      }
+      steps {
+        input 'No changes detected, continue anyway?'
+        script { continuePipeline = true }
+      }
+    }
     stage('Yarn install') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH
-yarn'''
+                yarn'''
         }
 
       }
     }
     stage('Test') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH
-yarn jest'''
+                yarn jest'''
         }
 
       }
     }
     stage('Deploy') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         input 'Deploy?'
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH
-sls deploy'''
+                sls deploy'''
         }
 
       }
     }
     stage('Remove') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         input 'Remove sls'
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH
-sls remove'''
+                sls remove'''
         }
 
       }

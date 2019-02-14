@@ -8,6 +8,7 @@ pipeline {
           //echo issues.data.toString()
           // echo issues.data.issues[0].key.toString()
           for (issue in issues.data.issue) {
+            echo "in issues"
             echo issue.key.toString()
           }
 

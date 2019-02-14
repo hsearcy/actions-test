@@ -1,39 +1,107 @@
+def continuePipeline = true
+
 pipeline {
   agent any
+  environment {
+    PACKAGE_PATH="packages/sls-test-B"
+  }
   stages {
+    stage('Echo Changes') {
+      steps {
+        script {
+          echo "Package path is: ${env.PACKAGE_PATH}"
+          def changeLogSets = currentBuild.changeSets
+          def allChanges = ""
+          def relevantChanges = ""
+          for (int i = 0; i < changeLogSets.size(); i++) {
+            def entries = changeLogSets[i].items
+            for (int j = 0; j < entries.length; j++) {
+              def relevantIncluded = false
+              def entry = entries[j]
+              def commitHeader = "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}\n"
+              allChanges += commitHeader
+              def files = new ArrayList(entry.affectedFiles)
+              for (int k = 0; k < files.size(); k++) {
+                def file = files[k]
+                allChanges += "  ${file.editType.name} ${file.path}\n"
+                if (file.path.contains(env.PACKAGE_PATH)) {
+                  if (!relevantIncluded) {
+                    relevantIncluded = true
+                    relevantChanges += commitHeader
+                  }
+                  relevantChanges += "  ${file.editType.name} ${file.path}\n"
+                }
+              }
+            }
+          }
+          echo "All changes since last build:\n${allChanges}"
+          echo "Changes relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
+          if (relevantChanges.length() > 0) {
+            echo "Changes detected, continuing pipeline."
+          } else {
+            continuePipeline = false
+            echo "No changes detected, waiting for user input to continue."
+          }
+        }
+      }
+    }
+    stage('Continue?') {
+      when {
+        expression { !continuePipeline }
+      }
+      steps {
+        timeout(time: 10, unit: "MINUTES") {
+          input 'No changes detected, continue anyway?'
+          script { continuePipeline = true }
+        }
+      }
+    }
     stage('Yarn install') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-B
-yarn'''
+          sh '''cd $PACKAGE_PATH
+                yarn'''
         }
 
       }
     }
     stage('Test') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-B
-yarn jest'''
+          sh '''cd $PACKAGE_PATH
+                yarn jest'''
         }
+
       }
     }
     stage('Deploy') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         input 'Deploy?'
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-B
-sls deploy'''
+          sh '''cd $PACKAGE_PATH
+                sls deploy'''
         }
 
       }
     }
     stage('Remove') {
+      when {
+        expression { continuePipeline }
+      }
       steps {
         input 'Remove sls'
         nodejs('Node 8') {
-          sh '''cd ./packages/sls-test-B
-sls remove'''
+          sh '''cd $PACKAGE_PATH
+                sls remove'''
         }
 
       }

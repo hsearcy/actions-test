@@ -11,8 +11,8 @@ pipeline {
             echo issue.key.toString()
             echo issue.fields.status.toString()
             echo issue.toString()
-            def issueUpdate = [fields: [ status: [name: 'Deployed']]]
-            def response = jiraEditIssue(idOrKey: issue.key, issue: issueUpdate, site: 'Gather')
+            def issueUpdate = [ transition: [ name: 'Deployed' ]]
+            def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
             echo response.data.toString()
           }
 

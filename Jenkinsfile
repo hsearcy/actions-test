@@ -12,14 +12,16 @@ pipeline {
             echo issue.fields.status.toString()
             echo issue.toString()
             if (firstIssue) {
+              firstIssue = false
               def transitions = jiraGetIssueTransitions idOrKey: issue.key, site: 'Gather'
-              echo transitions.data.toString()
               deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }.id
               echo deployedStatusID.toString()
             }
-            // def issueUpdate = [ transition: [ name: 'Deployed' ]]
-            // def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
-            // echo response.data.toString()
+            if (deployedStatusID > -1 ) {
+              def issueUpdate = [ transition: [ id: deployedStatusID ]]
+              def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
+              echo response.data.toString()
+            }
           }
 
 

@@ -9,12 +9,13 @@ pipeline {
     stage('Echo Changes') {
       steps {
         script {
-          if ( currentBuild.rawBuild.getCauses()[0].toString().contains('UserIdCause') ){
-            echo "manual build"
-          } else {
-            echo "auto build"
-          }
+          // if ( currentBuild.rawBuild.getCauses()[0].toString().contains('UserIdCause') ){
+          //   echo "manual build"
+          // } else {
+          //   echo "auto build"
+          // }
           echo "Package path is: ${env.PACKAGE_PATH}"
+          echo currentBuild.rawBuild.getCauses().toString()
           def changeLogSets = currentBuild.changeSets
           def allChanges = ""
           def relevantChanges = ""

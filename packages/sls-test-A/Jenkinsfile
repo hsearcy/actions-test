@@ -9,13 +9,7 @@ pipeline {
     stage('Echo Changes') {
       steps {
         script {
-          // if ( currentBuild.rawBuild.getCauses()[0].toString().contains('UserIdCause') ){
-          //   echo "manual build"
-          // } else {
-          //   echo "auto build"
-          // }
           echo "Package path is: ${env.PACKAGE_PATH}"
-          echo currentBuild.rawBuild.getCauses().toString()
           def changeLogSets = currentBuild.changeSets
           def allChanges = ""
           def relevantChanges = ""
@@ -87,25 +81,24 @@ pipeline {
       }
     }
 
-    stage('Wait for input') {
-      steps {
-        input 'Deploy?'
-      }
-    }
-
     stage('Deploy') {
       when {
         expression { continuePipeline }
       }
       steps {
-        milestone(label: 'Deploying', ordinal: 1)
-        nodejs('Node 8') {
-          sh '''cd $PACKAGE_PATH
-                sls deploy'''
+        milestone(label: 'Built', ordinal: 1)
+        lock (resource: 'Deployment', inversePrecedence: true) {
+          timeout(time: 30, unit: "MINUTES") {
+            input 'Deploy?'
+            milestone(label: 'Deploy', ordinal: 2)
+            nodejs('Node 8') {
+              sh '''cd $PACKAGE_PATH
+                    sls deploy'''
+            }
+          }
         }
       }
     }
-
     stage('Remove') {
       when {
         expression { continuePipeline }

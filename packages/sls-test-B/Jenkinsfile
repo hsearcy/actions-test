@@ -84,29 +84,32 @@ pipeline {
 
 
     stage('Deploy') {
+      milestone(label: 'Built', ordinal: 1)
       when {
         expression { continuePipeline }
       }
       steps {
-        milestone(label: 'Built', ordinal: 1)
-        input 'Deploy?'
-        nodejs('Node 8') {
-          sh '''cd $PACKAGE_PATH
-                sls deploy'''
+        timeout(time: 30, unit: "MINUTES") {
+          input 'Deploy?'
+          nodejs('Node 8') {
+            sh '''cd $PACKAGE_PATH
+                  sls deploy'''
+          }
         }
-
       }
     }
-    
+
     stage('Remove') {
       when {
         expression { continuePipeline }
       }
       steps {
-        input 'Remove sls'
-        nodejs('Node 8') {
-          sh '''cd $PACKAGE_PATH
-                sls remove'''
+        timeout(time: 30, unit: "MINUTES") {
+          input 'Remove sls'
+          nodejs('Node 8') {
+            sh '''cd $PACKAGE_PATH
+                  sls remove'''
+          }
         }
 
       }

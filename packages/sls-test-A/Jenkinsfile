@@ -88,7 +88,7 @@ pipeline {
         lock (resource: 'Deployment', inversePrecedence: true) {
           milestone(label: 'Built', ordinal: 1)
           timeout(time: 30, unit: "MINUTES") {
-            input 'Deploy?'
+            input 'Deploy??'
             nodejs('Node 8') {
               sh '''cd $PACKAGE_PATH
                     sls deploy'''

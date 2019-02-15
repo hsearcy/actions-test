@@ -5,7 +5,7 @@ pipeline {
   environment {
     PACKAGE_PATH="packages/sls-test-A"
   }
-
+  stages {
     stage('Echo Changes') {
       steps {
         script {
@@ -82,11 +82,11 @@ pipeline {
     }
 
     stage('Deploy') {
-      milestone label: 'Built', ordinal: 1
       when {
         expression { continuePipeline }
       }
       steps {
+        milestone(label: 'Built', ordinal: 1)
         input 'Deploy?'
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH

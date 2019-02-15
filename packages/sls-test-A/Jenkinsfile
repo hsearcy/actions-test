@@ -83,7 +83,7 @@ pipeline {
 
     stage('Wait for input') {
       steps {
-        input 'Deploy'
+        input 'Deploy?'
       }
     }
 

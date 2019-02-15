@@ -85,11 +85,11 @@ pipeline {
         expression { continuePipeline }
       }
       steps {
-        milestone()
+        milestone(label: 'Built', ordinal: 1)
         lock (resource: 'Deployment', inversePrecedence: true) {
           timeout(time: 30, unit: "MINUTES") {
             input 'Deploy??'
-            milestone()
+            milestone(label: 'Deploy', ordinal: 2)
             nodejs('Node 8') {
               sh '''cd $PACKAGE_PATH
                     sls deploy'''

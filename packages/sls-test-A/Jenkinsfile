@@ -82,7 +82,9 @@ pipeline {
     }
 
     stage('Wait for input') {
-      input 'Deploy'
+      steps {
+        input 'Deploy'
+      }
     }
 
     stage('Deploy') {

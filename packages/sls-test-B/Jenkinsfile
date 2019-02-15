@@ -63,7 +63,6 @@ pipeline {
       steps {
         nodejs('Node 8') {
           sh '''
-          gor -h
           cd $PACKAGE_PATH
                 yarn'''
         }
@@ -82,6 +81,9 @@ pipeline {
 
       }
     }
+
+    milestone label: 'Built', ordinal: 1
+
     stage('Deploy') {
       when {
         expression { continuePipeline }

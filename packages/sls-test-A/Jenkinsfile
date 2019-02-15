@@ -80,12 +80,12 @@ pipeline {
 
       }
     }
-    lock ('Deployment') {
-      stage('Deploy') {
-        when {
-          expression { continuePipeline }
-        }
-        steps {
+    stage('Deploy') {
+      when {
+        expression { continuePipeline }
+      }
+      steps {
+      lock ('Deployment') {
         milestone(label: 'Built', ordinal: 1)
           timeout(time: 30, unit: "MINUTES") {
             input 'Deploy?'

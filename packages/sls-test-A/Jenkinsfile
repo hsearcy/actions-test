@@ -80,18 +80,19 @@ pipeline {
 
       }
     }
-
-    stage('Deploy') {
-      milestone(label: 'Built', ordinal: 1)
-      when {
-        expression { continuePipeline }
-      }
-      steps {
-        timeout(time: 30, unit: "MINUTES") {
-          input 'Deploy?'
-          nodejs('Node 8') {
-            sh '''cd $PACKAGE_PATH
-                  sls deploy'''
+    lock ('Deployment') {
+      stage('Deploy') {
+        when {
+          expression { continuePipeline }
+        }
+        steps {
+        milestone(label: 'Built', ordinal: 1)
+          timeout(time: 30, unit: "MINUTES") {
+            input 'Deploy?'
+            nodejs('Node 8') {
+              sh '''cd $PACKAGE_PATH
+                    sls deploy'''
+            }
           }
         }
       }

@@ -6,6 +6,16 @@ pipeline {
     PACKAGE_PATH="packages/sls-test-A"
   }
   stages {
+    stage('Check Other Builds') {
+      steps {
+        script {
+          import hudson.model.Result
+
+          echo currentBuild.rawBuild.getPreviousBuildInProgress()
+        }
+
+      }
+    }
     stage('Echo Changes') {
       steps {
         script {
@@ -50,7 +60,7 @@ pipeline {
         expression { !continuePipeline }
       }
       steps {
-        timeout(time: 10, unit: "MINUTES") {
+        timeout(time: 30, unit: "SECONDS") {
           input 'No changes detected, continue anyway?'
           script { continuePipeline = true }
         }

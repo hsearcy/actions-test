@@ -81,9 +81,8 @@ pipeline {
       }
     }
 
-    milestone label: 'Built', ordinal: 1
-
     stage('Deploy') {
+      milestone label: 'Built', ordinal: 1
       when {
         expression { continuePipeline }
       }

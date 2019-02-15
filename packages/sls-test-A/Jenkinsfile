@@ -80,24 +80,24 @@ pipeline {
 
       }
     }
+
+    stage('Wait for input') {
+      input 'Deploy'
+    }
+
     stage('Deploy') {
       when {
         expression { continuePipeline }
       }
       steps {
-        milestone(label: 'Built', ordinal: 1)
-        lock (resource: 'Deployment', inversePrecedence: true) {
-          timeout(time: 30, unit: "MINUTES") {
-            input 'Deploy?'
-            milestone(label: 'Deploy', ordinal: 2)
-            nodejs('Node 8') {
-              sh '''cd $PACKAGE_PATH
-                    sls deploy'''
-            }
-          }
+        milestone(label: 'Deploying', ordinal: 1)
+        nodejs('Node 8') {
+          sh '''cd $PACKAGE_PATH
+                sls deploy'''
         }
       }
     }
+
     stage('Remove') {
       when {
         expression { continuePipeline }

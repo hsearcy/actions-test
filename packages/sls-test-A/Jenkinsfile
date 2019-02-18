@@ -1,6 +1,37 @@
 def continuePipeline = true
 def rollback = false;
 
+def ProcessChangelog(package) {
+  echo "Package path is: ${env.PACKAGE_PATH}"
+  def changeLogSets = currentBuild.changeSets
+  def allChanges = ""
+  def relevantChanges = ""
+  for (int i = 0; i < changeLogSets.size(); i++) {
+    def entries = changeLogSets[i].items
+    for (int j = 0; j < entries.length; j++) {
+      def relevantIncluded = false
+      def entry = entries[j]
+      def commitHeader = "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}\n"
+      allChanges += commitHeader
+      def files = new ArrayList(entry.affectedFiles)
+      for (int k = 0; k < files.size(); k++) {
+        def file = files[k]
+        allChanges += "  ${file.editType.name} ${file.path}\n"
+        if (file.path.contains(env.PACKAGE_PATH)) {
+          if (!relevantIncluded) {
+            relevantIncluded = true
+            relevantChanges += commitHeader
+          }
+          relevantChanges += "  ${file.editType.name} ${file.path}\n"
+        }
+      }
+    }
+  }
+  echo "All changes since last build:\n${allChanges}"
+  echo "Changes relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
+  return relevantChanges;
+}
+
 pipeline {
   agent any
   environment {
@@ -8,37 +39,11 @@ pipeline {
     SERVICE_NAME="service1"
   }
   stages {
-    stage('Echo Changes') {
+    stage('Get Changes') {
       steps {
         script {
-          echo "Package path is: ${env.PACKAGE_PATH}"
-          def changeLogSets = currentBuild.changeSets
-          def allChanges = ""
-          def relevantChanges = ""
-          for (int i = 0; i < changeLogSets.size(); i++) {
-            def entries = changeLogSets[i].items
-            for (int j = 0; j < entries.length; j++) {
-              def relevantIncluded = false
-              def entry = entries[j]
-              def commitHeader = "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}\n"
-              allChanges += commitHeader
-              def files = new ArrayList(entry.affectedFiles)
-              for (int k = 0; k < files.size(); k++) {
-                def file = files[k]
-                allChanges += "  ${file.editType.name} ${file.path}\n"
-                if (file.path.contains(env.PACKAGE_PATH)) {
-                  if (!relevantIncluded) {
-                    relevantIncluded = true
-                    relevantChanges += commitHeader
-                  }
-                  relevantChanges += "  ${file.editType.name} ${file.path}\n"
-                }
-              }
-            }
-          }
-          echo "All changes since last build:\n${allChanges}"
-          echo "Changes relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
-          if (relevantChanges.length() > 0) {
+          def changes = ProcessChangelog(env.PACKAGE_PATH);
+          if (changes.length() > 0) {
             echo "Changes detected, continuing pipeline."
           } else {
             continuePipeline = false

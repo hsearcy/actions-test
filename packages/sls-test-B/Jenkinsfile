@@ -32,6 +32,24 @@ def ProcessChangelog(package) {
   return relevantChanges;
 }
 
+def updateJiraIssues(service) {
+  def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${service}", auditLog: true, failOnError: true, site: 'Gather')
+  def firstIssue = true
+  def deployedStatusID = "-1"
+  issues.data.issues.each { issue ->
+    echo issue.key.toString()
+    if (firstIssue) {
+      firstIssue = false
+      def transitions = jiraGetIssueTransitions idOrKey: issue.key, site: 'Gather'
+      deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }.id.toString()
+    }
+    if (deployedStatusID != "-1") {
+      def issueUpdate = [ transition: [ id: deployedStatusID ]]
+      def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
+    }
+  }
+}
+
 pipeline {
   agent any
 
@@ -41,7 +59,7 @@ pipeline {
   }
 
   stages {
-    stage('Echo Changes') {
+    stage('Get Changes') {
       steps {
         script {
           def changes = ProcessChangelog(env.PACKAGE_PATH);
@@ -103,21 +121,7 @@ pipeline {
     stage('Update JIRA') {
       steps {
         script {
-          def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${env.SERVICE_NAME}", auditLog: true, failOnError: true, site: 'Gather')
-          def firstIssue = true
-          def deployedStatusID = "-1"
-          issues.data.issues.each { issue ->
-            echo issue.key.toString()
-            if (firstIssue) {
-              firstIssue = false
-              def transitions = jiraGetIssueTransitions idOrKey: issue.key, site: 'Gather'
-              deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }.id.toString()
-            }
-            if (deployedStatusID != "-1") {
-              def issueUpdate = [ transition: [ id: deployedStatusID ]]
-              def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
-            }
-          }
+          updateJiraIssues(env.SERVICE_NAME)
         }
 
       }

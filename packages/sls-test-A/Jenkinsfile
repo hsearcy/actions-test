@@ -61,9 +61,6 @@ pipeline {
     }
 
     stage('Yarn install') {
-      when {
-        expression { continuePipeline }
-      }
       steps {
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH

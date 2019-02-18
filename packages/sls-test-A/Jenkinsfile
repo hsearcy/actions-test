@@ -141,11 +141,13 @@ pipeline {
     }
 
     stage ('Done') {
-      when {
-        expression { !rollback }
-      }
       steps {
-        script { currentBuild.result = "SUCCESS" }
+        script {
+          if (rollback) {
+            currentBuild.result = "UNSTABLE"
+          } else {
+            currentBuild.result = "SUCCESS"
+          }
       }
     }
   }

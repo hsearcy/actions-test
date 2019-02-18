@@ -1,4 +1,5 @@
 def continuePipeline = true
+def rollback = false;
 
 pipeline {
   agent any
@@ -46,6 +47,7 @@ pipeline {
         }
       }
     }
+
     stage('Continue?') {
       when {
         expression { !continuePipeline }
@@ -57,6 +59,7 @@ pipeline {
         }
       }
     }
+
     stage('Yarn install') {
       when {
         expression { continuePipeline }
@@ -69,6 +72,7 @@ pipeline {
 
       }
     }
+
     stage('Test') {
       when {
         expression { continuePipeline }
@@ -78,7 +82,6 @@ pipeline {
           sh '''cd $PACKAGE_PATH
                 yarn jest'''
         }
-
       }
     }
 
@@ -130,20 +133,26 @@ pipeline {
         expression { continuePipeline }
       }
       steps {
-        def abort = true;
-        try {
-            timeout(time: 30, unit: "SECONDS") {
-            input 'Remove sls'
+        timeout(time: 30, unit: "SECONDS") {
+          input 'Remove sls'
+          script {
+            rollback = true;
+            currentBuild.result = "UNSTABLE";
           }
-        } catch (err) {
-          abort = false;
-        }
-        if (abort) {
           nodejs('Node 8') {
             sh '''cd $PACKAGE_PATH
                   sls remove'''
           }
         }
+      }
+    }
+
+    stage ('Done') {
+      when {
+        expression { continuePipeline && !rollback }
+      }
+      steps {
+        script { currentBuild.result = "SUCCESS" }
       }
     }
   }

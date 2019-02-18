@@ -121,10 +121,11 @@ pipeline {
         timeout(time: 30, unit: "SECONDS") {
           script {
             try {
-              input 'Remove sls'script {
-              rollback = true;
-              currentBuild.result = "UNSTABLE";
-            }
+              input 'Remove sls'
+              script {
+                rollback = true;
+                currentBuild.result = "UNSTABLE";
+              }
             } catch (error) {
               rollback = false;
             }

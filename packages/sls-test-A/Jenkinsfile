@@ -118,11 +118,13 @@ pipeline {
 
     stage('Remove') {
       steps {
-        timeout(time: 30, unit: "MINUTES") {
+        timeout(time: 30, unit: "SECONDS") {
           script {
             try {
-              input 'Remove sls'
-              script { rollback = true }
+              input 'Remove sls'script {
+              rollback = true;
+              currentBuild.result = "UNSTABLE";
+            }
             } catch (error) {
               rollback = false;
             }
@@ -138,14 +140,11 @@ pipeline {
     }
 
     stage ('Done') {
+      when {
+        expression { !rollback }
+      }
       steps {
-        script {
-          if (rollback) {
-            currentBuild.result = "UNSTABLE";
-          } else {
-            currentBuild.result = "SUCCESS";
-          }
-        }
+        script { currentBuild.result = "SUCCESS" }
       }
     }
   }

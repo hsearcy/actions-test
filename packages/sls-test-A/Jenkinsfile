@@ -130,8 +130,15 @@ pipeline {
         expression { continuePipeline }
       }
       steps {
-        timeout(time: 30, unit: "MINUTES") {
-          input 'Remove sls'
+        def abort = true;
+        try {
+            timeout(time: 30, unit: "SECONDS") {
+            input 'Remove sls'
+          }
+        } catch (err) {
+          abort = false;
+        }
+        if (abort) {
           nodejs('Node 8') {
             sh '''cd $PACKAGE_PATH
                   sls remove'''

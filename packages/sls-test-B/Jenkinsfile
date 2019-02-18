@@ -1,4 +1,5 @@
 def continuePipeline = true
+def rollback = false;
 
 pipeline {
   agent any
@@ -46,6 +47,7 @@ pipeline {
         }
       }
     }
+
     stage('Continue?') {
       when {
         expression { !continuePipeline }
@@ -57,41 +59,31 @@ pipeline {
         }
       }
     }
+
     stage('Yarn install') {
-      when {
-        expression { continuePipeline }
-      }
       steps {
         nodejs('Node 8') {
-          sh '''
-          cd $PACKAGE_PATH
+          sh '''cd $PACKAGE_PATH
                 yarn'''
         }
 
       }
     }
+
     stage('Test') {
-      when {
-        expression { continuePipeline }
-      }
       steps {
         nodejs('Node 8') {
           sh '''cd $PACKAGE_PATH
                 yarn jest'''
         }
-
       }
     }
 
-
     stage('Deploy') {
-      when {
-        expression { continuePipeline }
-      }
       steps {
         milestone(label: 'Built', ordinal: 1)
         timeout(time: 30, unit: "MINUTES") {
-          input 'Deploy?'
+          input 'Deploy??'
           milestone(label: 'Deploy', ordinal: 2)
           nodejs('Node 8') {
             sh '''cd $PACKAGE_PATH
@@ -102,9 +94,6 @@ pipeline {
     }
 
     stage('Update JIRA') {
-      when {
-        expression { continuePipeline }
-      }
       steps {
         script {
           def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${env.SERVICE_NAME}", auditLog: true, failOnError: true, site: 'Gather')
@@ -128,18 +117,35 @@ pipeline {
     }
 
     stage('Remove') {
-      when {
-        expression { continuePipeline }
-      }
       steps {
-        timeout(time: 30, unit: "MINUTES") {
-          input 'Remove sls'
-          nodejs('Node 8') {
-            sh '''cd $PACKAGE_PATH
-                  sls remove'''
+        timeout(time: 30, unit: "SECONDS") {
+          script {
+            try {
+              input 'Remove sls'
+              script {
+                rollback = true;
+                currentBuild.result = "UNSTABLE";
+              }
+            } catch (error) {
+              rollback = false;
+            }
+            if (rollback) {
+              nodejs('Node 8') {
+                sh '''cd $PACKAGE_PATH
+                      sls remove'''
+              }
+            }
           }
         }
+      }
+    }
 
+    stage ('Successfully Deployed') {
+      when {
+        expression { !rollback }
+      }
+      steps {
+        script { currentBuild.result = "SUCCESS" }
       }
     }
   }

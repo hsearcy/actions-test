@@ -140,7 +140,7 @@ pipeline {
       }
     }
 
-    stage ('Done') {
+    stage ('Successfully Deployed') {
       when {
         expression { !rollback }
       }

@@ -4,6 +4,7 @@ pipeline {
   agent any
   environment {
     PACKAGE_PATH="packages/sls-test-B"
+    SERVICE_NAME="service2"
   }
   stages {
     stage('Echo Changes') {
@@ -100,13 +101,13 @@ pipeline {
       }
     }
 
-    stage('JIRA Search') {
+    stage('Update JIRA') {
       when {
         expression { continuePipeline }
       }
       steps {
         script {
-          def issues = jiraJqlSearch(jql: 'project = Jenkins AND status = Done AND labels = service1', auditLog: true, failOnError: true, site: 'Gather')
+          def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${env.SERVICE_NAME}", auditLog: true, failOnError: true, site: 'Gather')
           def firstIssue = true
           def deployedStatusID = "-1"
           issues.data.issues.each { issue ->

@@ -7,7 +7,7 @@ pipeline {
     stage('JIRA Search') {
       steps {
         script {
-          def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${service1}", auditLog: true, failOnError: true, site: 'Gather')
+          def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${env.SERVICE_NAME}", auditLog: true, failOnError: true, site: 'Gather')
           def firstIssue = true
           def deployedStatusID = "-1"
           issues.data.issues.each { issue ->
@@ -23,7 +23,6 @@ pipeline {
             }
           }
         }
-
       }
     }
   }

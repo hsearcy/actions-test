@@ -88,7 +88,7 @@ pipeline {
       steps {
         milestone(label: 'Built', ordinal: 1)
         timeout(time: 30, unit: "MINUTES") {
-          input 'Deploy??'
+          input 'Deploy?'
           milestone(label: 'Deploy', ordinal: 2)
           nodejs('Node 8') {
             sh '''cd $PACKAGE_PATH

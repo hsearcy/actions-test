@@ -54,15 +54,22 @@ def getAllChanges() {
   def changes = "Changes:\n"
   build = currentBuild
   while(build != null && build.result != 'SUCCESS') {
-      changes += "In ${build.id}:\n"
-      for (changeLog in build.changeSets) {
-          for(entry in changeLog.items) {
-              for(file in entry.affectedFiles) {
-                  changes += "* ${file.path}\n"
+    def theseChanges = "In ${build.id}:\n"
+    for (changeLog in build.changeSets) {
+        for(entry in changeLog.items) {
+            for(file in entry.affectedFiles) {
+              if (file.path.contains(env.PACKAGE_PATH)) {
+                if (!relevantIncluded) {
+                  relevantIncluded = true
+                  relevantChanges += commitHeader
+                }
+                theseChanges += "  ${file.editType.name} ${file.path}\n"
               }
-          }
-      }
-      build = build.previousBuild
+            }
+        }
+    }
+    if (theseChanges.length > 10) changes += theseChanges;
+    build = build.previousBuild
   }
   echo changes
 }

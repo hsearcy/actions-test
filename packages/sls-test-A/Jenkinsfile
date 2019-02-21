@@ -67,7 +67,7 @@ def getAllChanges() {
             }
         }
     }
-    if (theseChanges.length > 10) changes += theseChanges;
+    if (theseChanges.length() > 10) changes += theseChanges;
     build = build.previousBuild
   }
   echo changes

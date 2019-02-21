@@ -27,9 +27,7 @@ def ProcessChangelog() {
       }
     }
   }
-  changeline = "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
   echo "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
-  env.ALL_CHANGES=$(echo "${changeline}")
   if (relevantChanges.length() > 0) {
     echo "Changes detected, continuing pipeline."
   } else {
@@ -84,7 +82,6 @@ pipeline {
   environment {
     PACKAGE_PATH="packages/sls-test-A"
     SERVICE_NAME="service1"
-    ALL_OUTPUT=""
   }
   stages {
     stage('Get Changes') {
@@ -92,8 +89,6 @@ pipeline {
         script {
           ProcessChangelog();
           GetAllChanges();
-          echo "kk"
-          echo env.ALL_OUTPUT
         }
       }
     }

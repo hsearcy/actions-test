@@ -57,9 +57,12 @@ def getAllChanges() {
     def theseChanges = "In ${build.id}:\n"
     for (changeLog in build.changeSets) {
         for(entry in changeLog.items) {
+            def commitHeader = "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}\n"
+            def first = true;
             for(file in entry.affectedFiles) {
               if (file.path.contains(env.PACKAGE_PATH)) {
-                theseChanges += "  ${file.editType.name} ${file.path}\n"
+                if (first) theseChanges += commitHeader;
+                theseChanges += " ${file.path}\n"
               }
             }
         }

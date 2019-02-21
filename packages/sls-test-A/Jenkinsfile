@@ -32,6 +32,41 @@ def ProcessChangelog(package) {
   return relevantChanges;
 }
 
+def updateJiraIssues(service) {
+  def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${service}", auditLog: true, failOnError: true, site: 'Gather')
+  def firstIssue = true
+  def deployedStatusID = "-1"
+  issues.data.issues.each { issue ->
+    echo issue.key.toString()
+    if (firstIssue) {
+      firstIssue = false
+      def transitions = jiraGetIssueTransitions idOrKey: issue.key, site: 'Gather'
+      deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }.id.toString()
+    }
+    if (deployedStatusID != "-1") {
+      def issueUpdate = [ transition: [ id: deployedStatusID ]]
+      def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
+    }
+  }
+}
+
+def getAllChanges() {
+  def changes = "Changes:\n"
+  build = currentBuild
+  while(build != null && build.result != 'SUCCESS') {
+      changes += "In ${build.id}:\n"
+      for (changeLog in build.changeSets) {
+          for(entry in changeLog.items) {
+              for(file in entry.affectedFiles) {
+                  changes += "* ${file.path}\n"
+              }
+          }
+      }
+      build = build.previousBuild
+  }
+  echo changes
+}
+
 pipeline {
   agent any
   environment {
@@ -49,6 +84,7 @@ pipeline {
             continuePipeline = false
             echo "No changes detected, waiting for user input to continue."
           }
+          getAllChanges();
         }
       }
     }
@@ -101,23 +137,8 @@ pipeline {
     stage('Update JIRA') {
       steps {
         script {
-          def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${env.SERVICE_NAME}", auditLog: true, failOnError: true, site: 'Gather')
-          def firstIssue = true
-          def deployedStatusID = "-1"
-          issues.data.issues.each { issue ->
-            echo issue.key.toString()
-            if (firstIssue) {
-              firstIssue = false
-              def transitions = jiraGetIssueTransitions idOrKey: issue.key, site: 'Gather'
-              deployedStatusID = transitions.data.transitions.find { it.name == "Deployed" }.id.toString()
-            }
-            if (deployedStatusID != "-1") {
-              def issueUpdate = [ transition: [ id: deployedStatusID ]]
-              def response = jiraTransitionIssue (idOrKey: issue.key, input: issueUpdate, site: 'Gather')
-            }
-          }
+          updateJiraIssues(env.SERVICE_NAME)
         }
-
       }
     }
 

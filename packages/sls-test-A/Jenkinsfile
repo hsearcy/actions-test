@@ -27,7 +27,8 @@ def ProcessChangelog() {
       }
     }
   }
-  echo "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
+  def changelines = "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
+  echo changelines.toString()
   if (relevantChanges.length() > 0) {
     echo "Changes detected, continuing pipeline."
   } else {

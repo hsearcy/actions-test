@@ -59,10 +59,6 @@ def getAllChanges() {
         for(entry in changeLog.items) {
             for(file in entry.affectedFiles) {
               if (file.path.contains(env.PACKAGE_PATH)) {
-                if (!relevantIncluded) {
-                  relevantIncluded = true
-                  relevantChanges += commitHeader
-                }
                 theseChanges += "  ${file.editType.name} ${file.path}\n"
               }
             }

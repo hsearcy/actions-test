@@ -1,6 +1,6 @@
 def continuePipeline = true
 def rollback = false
-def utils = evaluate readTrusted('../Jenkins/utils.groovy')
+def utils = evaluate readTrusted('./Jenkins/utils.groovy')
 
 pipeline {
   agent any

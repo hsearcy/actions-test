@@ -1,6 +1,6 @@
 def continuePipeline = true
 def rollback = false
-def utils
+def utils = evaluate readTrusted('../Jenkins/utils.groovy')
 
 pipeline {
   agent any
@@ -13,8 +13,6 @@ pipeline {
       steps {
         script {
           echo "../Jenkins/utils.groovy";
-          checkout scm
-          utils = load "../Jenkins/utils.groovy";
           continuePipeline = utils.ProcessChangelog();
           utils.GetAllChanges();
         }

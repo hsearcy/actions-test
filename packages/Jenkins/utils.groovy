@@ -1,5 +1,6 @@
 def ProcessChangelog() {
   echo "Package path is: ${env.PACKAGE_PATH}"
+  def continuePipeline = true
   def changeLogSets = currentBuild.changeSets
   def allChanges = ""
   def relevantChanges = ""
@@ -31,6 +32,7 @@ def ProcessChangelog() {
     continuePipeline = false
     echo "No changes detected, waiting for user input to continue."
   }
+  return continuePipeline;
 }
 
 def UpdateJiraIssues(service) {

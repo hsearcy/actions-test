@@ -13,6 +13,7 @@ pipeline {
       steps {
         script {
           echo "../Jenkins/utils.groovy";
+          checkout scm
           utils = load "../Jenkins/utils.groovy";
           continuePipeline = utils.ProcessChangelog();
           utils.GetAllChanges();

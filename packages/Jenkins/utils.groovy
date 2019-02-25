@@ -75,4 +75,4 @@ def GetAllChanges() {
   }
   echo "All changes since the last deployment:\n${changes}"
 }
-return this
+return this;

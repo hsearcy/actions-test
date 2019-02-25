@@ -11,6 +11,7 @@ pipeline {
     stage('Get Changes') {
       steps {
         script {
+          cat "../Jenkins/utils.groovy"
           def utils = load "../Jenkins/utils.groovy";
           continuePipeline = utils.ProcessChangelog();
           utils.GetAllChanges();

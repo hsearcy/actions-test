@@ -1,6 +1,6 @@
 def continuePipeline = true
-def rollback = false;
-Map modules = [:]
+def rollback = false
+def utils
 
 pipeline {
   agent any
@@ -12,7 +12,8 @@ pipeline {
     stage('Get Changes') {
       steps {
         script {
-          modules.utils = load "../Jenkins/utils.groovy";
+          cat "../Jenkins/utils.groovy"
+          utils = load "../Jenkins/utils.groovy";
           continuePipeline = utils.ProcessChangelog();
           utils.GetAllChanges();
         }
@@ -67,7 +68,6 @@ pipeline {
     stage('Update JIRA') {
       steps {
         script {
-          modules.utils = load "../Jenkins/utils.groovy";
           utils.UpdateJiraIssues(env.SERVICE_NAME)
         }
       }

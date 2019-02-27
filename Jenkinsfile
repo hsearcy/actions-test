@@ -20,7 +20,7 @@ pipeline {
                 def file = files[k]
                 allChanges += "  ${file.editType.name} ${file.path}\n"
                 def matchingBuild = buildNames.find { file.path.matches("packages/${it}/(.*)")}
-                if (!changedPackages.contains(matchingBuild)) changedPackages << matchingBuild
+                if (matchingBuild && !changedPackages.contains(matchingBuild)) changedPackages << matchingBuild
               }
             }
           }

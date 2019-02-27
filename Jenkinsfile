@@ -1,5 +1,5 @@
 def changedPackages = [];
-def packageNames = [];
+def buildNames = ["sls-test-A", "sls-test-B"];
 
 pipeline {
   agent any
@@ -7,10 +7,6 @@ pipeline {
     stage('Get Changed Paths') {
       steps {
         script {
-          Jenkins.instance.getAllItems(org.jenkinsci.plugins.workflow.job.WorkflowJob).each {
-            def pkg = it.fullName.split("/")[0];
-            packageNames << "packages/${pkg}/"
-          }
           def changeLogSets = currentBuild.changeSets
           def allChanges = ""
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -23,13 +19,13 @@ pipeline {
               for (int k = 0; k < files.size(); k++) {
                 def file = files[k]
                 allChanges += "  ${file.editType.name} ${file.path}\n"
-                if (file.path.contains(env.PACKAGE_PATH)) {
-
-                }
+                def matchingBuild = buildNames.find { file.path.matches("packages/${it}/(.*)")}
+                if (!changedPackages.contains(matchingBuild)) changedPackages << matchingBuild
               }
             }
           }
           echo "All changes since last build:\n${allChanges}."
+          echo "Changed: ${changedPackages}"
         }
       }
     }

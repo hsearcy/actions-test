@@ -34,7 +34,7 @@ pipeline {
       steps {
         script {
           changedPackages.each { buildName ->
-            build job: buildName
+            build job: buildName, wait: false
           }
         }
       }

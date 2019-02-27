@@ -24,12 +24,12 @@ pipeline {
                 def file = files[k]
                 allChanges += "  ${file.editType.name} ${file.path}\n"
                 if (file.path.contains(env.PACKAGE_PATH)) {
-                  
+
                 }
               }
             }
           }
-          echo "All changes since last build:\n${allChanges}"
+          echo "All changes since last build:\n${allChanges}."
         }
       }
     }

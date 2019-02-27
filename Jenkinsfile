@@ -19,13 +19,23 @@ pipeline {
               for (int k = 0; k < files.size(); k++) {
                 def file = files[k]
                 allChanges += "  ${file.editType.name} ${file.path}\n"
-                def matchingBuild = buildNames.find { file.path.matches("packages/${it}/(.*)")}
+                def matchingBuild = buildNames.find { pkg -> file.path.matches("packages/${pkg}/(.*)") }
                 if (matchingBuild && !changedPackages.contains(matchingBuild)) changedPackages << matchingBuild
               }
             }
           }
           echo "All changes since last build:\n${allChanges}."
           echo "Changed: ${changedPackages}"
+        }
+      }
+    }
+
+    stage('Launch builds with changes') {
+      steps {
+        script {
+          changedPackages.each { buildName ->
+            build job: buildName
+          }
         }
       }
     }

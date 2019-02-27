@@ -26,7 +26,7 @@ def ProcessChangelog() {
       }
     }
   }
-  echo "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}."
+  echo "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
 }
 
 def UpdateJiraIssues(service) {

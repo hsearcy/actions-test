@@ -67,7 +67,7 @@ pipeline {
             echo "Changes detected, continuing pipeline."
           } else {
             continuePipeline = false
-            echo "No changes detected, waiting for user input to continue.."
+            echo "No changes detected, waiting for user input to continue..."
           }
         }
       }

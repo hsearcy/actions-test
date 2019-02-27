@@ -1,7 +1,7 @@
 def continuePipeline = true
 def rollback = false;
 
-def ProcessChangelog(package) {
+def ProcessChangelog() {
   echo "Package path is: ${env.PACKAGE_PATH}"
   def changeLogSets = currentBuild.changeSets
   def allChanges = ""
@@ -27,12 +27,10 @@ def ProcessChangelog(package) {
       }
     }
   }
-  echo "All changes since last build:\n${allChanges}"
-  echo "Changes relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
-  return relevantChanges;
+  echo "All changes since last build:\n${allChanges}\nChanges relevant to ${env.PACKAGE_PATH}:\n${relevantChanges}"
 }
 
-def updateJiraIssues(service) {
+def UpdateJiraIssues(service) {
   def issues = jiraJqlSearch(jql: "project = Jenkins AND status = Done AND labels = ${service}", auditLog: true, failOnError: true, site: 'Gather')
   def firstIssue = true
   def deployedStatusID = "-1"
@@ -50,37 +48,41 @@ def updateJiraIssues(service) {
   }
 }
 
+def GetAllChanges() {
+  def changes = "Changes:\n"
+  build = currentBuild
+  while(build != null && build.result != 'SUCCESS') {
+    def theseChanges = "In ${build.id}:\n"
+    for (changeLog in build.changeSets) {
+        for(entry in changeLog.items) {
+            def commitHeader = "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}\n"
+            def first = true;
+            for(file in entry.affectedFiles) {
+              if (file.path.contains(env.PACKAGE_PATH)) {
+                if (first) theseChanges += commitHeader;
+                theseChanges += " ${file.path}\n"
+              }
+            }
+        }
+    }
+    if (theseChanges.length() > 10) changes += theseChanges;
+    build = build.previousBuild
+  }
+  echo "All changes since the last deployment:\n${changes}"
+}
+
 pipeline {
   agent any
-
   environment {
     PACKAGE_PATH="packages/sls-test-B"
     SERVICE_NAME="service2"
   }
-
   stages {
     stage('Get Changes') {
       steps {
         script {
-          def changes = ProcessChangelog(env.PACKAGE_PATH);
-          if (changes.length() > 0) {
-            echo "Changes detected, continuing pipeline."
-          } else {
-            continuePipeline = false
-            echo "No changes detected, waiting for user input to continue..."
-          }
-        }
-      }
-    }
-
-    stage('Continue?') {
-      when {
-        expression { !continuePipeline }
-      }
-      steps {
-        timeout(time: 30, unit: "SECONDS") {
-          input 'No changes detected, continue anyway?'
-          script { continuePipeline = true }
+          ProcessChangelog();
+          GetAllChanges();
         }
       }
     }
@@ -108,7 +110,7 @@ pipeline {
       steps {
         milestone(label: 'Built', ordinal: 1)
         timeout(time: 30, unit: "MINUTES") {
-          input 'Deploy?'
+          input 'Deploy??'
           milestone(label: 'Deploy', ordinal: 2)
           nodejs('Node 8') {
             sh '''cd $PACKAGE_PATH
@@ -121,9 +123,8 @@ pipeline {
     stage('Update JIRA') {
       steps {
         script {
-          updateJiraIssues(env.SERVICE_NAME)
+          UpdateJiraIssues(env.SERVICE_NAME)
         }
-
       }
     }
 

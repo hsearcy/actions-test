@@ -27,7 +27,7 @@ pipeline {
           echo "All changes since last build:\n${allChanges}."
           echo "Changed: ${changedPackages}"
           def rootDir = pwd();
-          def utils = load "${rootDir}/packages/Jenkins/utils.groovy"
+          def utils = load "utils.groovy"
           utils.ProcessChangelog();
         }
       }

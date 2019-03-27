@@ -28,7 +28,7 @@ pipeline {
           echo "All changes since last build:\n${allChanges}."
           echo "Changed: ${changedPackages}"
 
-          ProcessChangelog();
+          utils.ProcessChangelog();
         }
       }
     }

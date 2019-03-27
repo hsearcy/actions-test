@@ -1,4 +1,4 @@
-@Library('monorepo-utils');
+library 'monorepo-utils'
 def changedPackages = [];
 def buildNames = ["sls-test-A", "sls-test-B"];
 
@@ -27,6 +27,7 @@ pipeline {
           }
           echo "All changes since last build:\n${allChanges}."
           echo "Changed: ${changedPackages}"
+          ProcessChangelog();
         }
       }
     }

@@ -1,4 +1,4 @@
-library 'monorepo-utils'
+@Library('monorepo-utils') _
 def changedPackages = [];
 def buildNames = ["sls-test-A", "sls-test-B"];
 

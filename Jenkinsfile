@@ -4,6 +4,10 @@ def buildNames = ["sls-test-A", "sls-test-B"];
 
 pipeline {
   agent any
+  environment {
+    PACKAGE_PATH="packages/sls-test-A"
+    SERVICE_NAME="service1"
+  }
   stages {
     stage('Get Changed Paths') {
       steps {

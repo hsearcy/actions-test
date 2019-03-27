@@ -1,4 +1,3 @@
-library 'monorepo-utils'
 def changedPackages = [];
 def buildNames = ["sls-test-A", "sls-test-B"];
 
@@ -27,7 +26,9 @@ pipeline {
           }
           echo "All changes since last build:\n${allChanges}."
           echo "Changed: ${changedPackages}"
-          ProcessChangelog();
+          def rootDir = pwd();
+          def utils = load "${rootDir}/Packages/Jenkins/utils.groovy"
+          utils.ProcessChangelog();
         }
       }
     }

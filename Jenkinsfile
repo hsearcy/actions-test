@@ -35,6 +35,7 @@ pipeline {
           utils.ProcessChangelog();
 
           echo "getting service list."
+          def sout = new StringBuffer(), serr = new StringBuffer()
           def proc ='find ./packages -maxdepth 1 -type d -regex .*test.*'.execute()
           proc.consumeProcessOutput(sout, serr)
           proc.waitForOrKill(1000)

@@ -9,6 +9,28 @@ pipeline {
     SERVICE_NAME="service1"
   }
   stages {
+    stage('Prototype') {
+      steps {
+        script {
+          def allChanges = ""
+          for (changeSet in currentBuild.changeSets) {
+            for (change in changeSet.items) {
+              for (entry in change) {
+                def commitHeader = "${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}\n"
+                allChanges += commitHeader
+                for (files in entry.affectedFiles) {
+                  for (file in files) {
+                    allChanges += "  ${file.editType.name} ${file.path}\n"
+                  }
+                }
+              }
+            }
+          }
+          echo "All changes since last build:\n${allChanges}."
+        }
+      }
+    }
+
     stage('Get Changed Paths') {
       steps {
         script {

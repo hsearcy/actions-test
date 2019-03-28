@@ -37,7 +37,7 @@ pipeline {
           def svcs = utils.findServices()
           println svcs
           echo "getting service list.\n ${svcs}"
-
+          
         }
       }
     }

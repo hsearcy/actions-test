@@ -91,6 +91,7 @@ pipeline {
         withCredentials([string(credentialsId: 'test-token', variable: 'NPM_TOKEN')]) {
             nodejs('Node 8') {
               sh '''cd $PACKAGE_PATH
+                    printenv
                     yarn'''
             }
         }

@@ -35,8 +35,10 @@ pipeline {
           utils.ProcessChangelog();
 
           echo "getting service list..."
-          final foundFiles = sh(script: 'find ./packages -maxdepth 1 -type d -regex .*-?test?.*', returnStdout: true).split()
-          echo "${foundFiles}"
+          def proc ='find ./packages -maxdepth 1 -type d -regex .*test.*'.execute()
+          proc.consumeProcessOutput(sout, serr)
+          proc.waitForOrKill(1000)
+          println sout.replaceAll("/packages","").split()
         }
       }
     }

@@ -35,7 +35,8 @@ pipeline {
           utils.ProcessChangelog();
 
           echo "getting service list."
-          utils.findServices()
+          def svcs = utils.findServices()
+          println svcs
         }
       }
     }

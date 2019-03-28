@@ -33,6 +33,10 @@ pipeline {
           echo "Changed: ${changedPackages}"
 
           utils.ProcessChangelog();
+
+          echo "getting service list..."
+          final foundFiles = sh(script: 'find ./packages -maxdepth 1 -type d -regex .*-?test?.*', returnStdout: true).split()
+          echo "${foundFiles}"
         }
       }
     }

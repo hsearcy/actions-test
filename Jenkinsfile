@@ -1,6 +1,6 @@
 library 'shared-utils'
 def changedPackages = [];
-def buildNames = ["sls-test-A", "sls-test-B"];
+def buildNames = [];
 
 pipeline {
   agent any
@@ -12,6 +12,7 @@ pipeline {
     stage('Get Changed Paths') {
       steps {
         script {
+          buildNames = utils.findServices();
           def changeLogSets = currentBuild.changeSets
           def allChanges = ""
           for (int i = 0; i < changeLogSets.size(); i++) {
@@ -33,10 +34,6 @@ pipeline {
           echo "Changed: ${changedPackages}"
 
           utils.ProcessChangelog();
-
-          def svcs = utils.findServices()
-          println svcs
-          echo "getting service list...\n ${svcs}"
 
         }
       }
